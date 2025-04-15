@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/ardanlabs/encore/app/sdk/debug"
+	"github.com/ardanlabs/service/app/sdk/debug"
 	"github.com/ardanlabs/service/foundation/logger"
 )
 

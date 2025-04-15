@@ -1,13 +1,12 @@
 package test
 
 import (
-	"net/http"
-
 	"github.com/ardanlabs/service/foundation/logger"
+	"github.com/ardanlabs/service/foundation/web"
 )
 
-func Routes(log *logger.Logger, mux *http.ServeMux) {
+func Routes(log *logger.Logger, app *web.App) {
 	api := new(log)
 
-	mux.HandleFunc("GET /test", api.handler)
+	app.HandleFunc("GET /test", api.handler)
 }

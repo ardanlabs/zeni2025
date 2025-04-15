@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -17,9 +18,13 @@ func new(log *logger.Logger) *app {
 	}
 }
 
-func (a app) handler(w http.ResponseWriter, r *http.Request) {
-	a.log.Info(r.Context(), "handler", "path", r.URL.Path, "status", "started")
-	defer a.log.Info(r.Context(), "handler", "path", r.URL.Path, "status", "completed")
+func (a app) handler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	// Recv Input
+	// Validate Input
+	// Process OK response
+
+	a.log.Info(ctx, "handler", "path", r.URL.Path, "status", "started")
+	defer a.log.Info(ctx, "handler", "path", r.URL.Path, "status", "completed")
 
 	status := struct {
 		Status string
@@ -27,5 +32,5 @@ func (a app) handler(w http.ResponseWriter, r *http.Request) {
 		Status: "OK",
 	}
 
-	json.NewEncoder(w).Encode(status)
+	return json.NewEncoder(w).Encode(status)
 }

@@ -2,10 +2,10 @@ package test
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/ardanlabs/service/foundation/logger"
+	"github.com/ardanlabs/service/foundation/web"
 )
 
 type app struct {
@@ -18,16 +18,14 @@ func new(log *logger.Logger) *app {
 	}
 }
 
-func (a app) handler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (a app) handler(ctx context.Context, r *http.Request) web.Encoder {
 	// Recv Input
 	// Validate Input
 	// Process OK response
 
-	status := struct {
-		Status string
-	}{
+	status := status{
 		Status: "OK",
 	}
 
-	return json.NewEncoder(w).Encode(status)
+	return status
 }

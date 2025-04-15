@@ -7,7 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type HandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+type Encoder interface {
+	Encode() (data []byte, contentType string, err error)
+}
+
+type HandlerFunc func(ctx context.Context, r *http.Request) Encoder
 
 type App struct {
 	*http.ServeMux
@@ -29,11 +33,9 @@ func (a *App) HandleFunc(pattern string, handlerFunc HandlerFunc, mw ...MidFunc)
 	h := func(w http.ResponseWriter, r *http.Request) {
 		ctx := setTraceID(r.Context(), uuid.New())
 
-		err := handlerFunc(ctx, w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		resp := handlerFunc(ctx, r)
+
+		Respond(ctx, w, resp)
 
 		// POST-PROCESSING
 	}

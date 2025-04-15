@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type HandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -25,9 +27,9 @@ func (a *App) HandleFunc(pattern string, handlerFunc HandlerFunc, mw ...MidFunc)
 	handlerFunc = wrapMiddleware(a.mw, handlerFunc)
 
 	h := func(w http.ResponseWriter, r *http.Request) {
-		// PRE-PROCESSING
+		ctx := setTraceID(r.Context(), uuid.New())
 
-		err := handlerFunc(r.Context(), w, r)
+		err := handlerFunc(ctx, w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

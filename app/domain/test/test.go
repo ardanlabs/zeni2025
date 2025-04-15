@@ -23,9 +23,6 @@ func (a app) handler(ctx context.Context, w http.ResponseWriter, r *http.Request
 	// Validate Input
 	// Process OK response
 
-	a.log.Info(ctx, "handler", "path", r.URL.Path, "status", "started")
-	defer a.log.Info(ctx, "handler", "path", r.URL.Path, "status", "completed")
-
 	status := struct {
 		Status string
 	}{

@@ -13,14 +13,18 @@ type Encoder interface {
 
 type HandlerFunc func(ctx context.Context, r *http.Request) Encoder
 
+type Logger func(ctx context.Context, msg string, args ...any)
+
 type App struct {
 	*http.ServeMux
-	mw []MidFunc
+	log Logger
+	mw  []MidFunc
 }
 
-func NewApp(mw ...MidFunc) *App {
+func NewApp(log Logger, mw ...MidFunc) *App {
 	return &App{
 		ServeMux: http.NewServeMux(),
+		log:      log,
 		mw:       mw,
 	}
 }
@@ -35,9 +39,10 @@ func (a *App) HandleFunc(pattern string, handlerFunc HandlerFunc, mw ...MidFunc)
 
 		resp := handlerFunc(ctx, r)
 
-		Respond(ctx, w, resp)
-
-		// POST-PROCESSING
+		if err := Respond(ctx, w, resp); err != nil {
+			a.log(ctx, "web-respond", "ERROR", err)
+			return
+		}
 	}
 
 	a.ServeMux.HandleFunc(pattern, h)

@@ -2,8 +2,10 @@ package test
 
 import (
 	"context"
+	"math/rand"
 	"net/http"
 
+	"github.com/ardanlabs/service/app/sdk/errs"
 	"github.com/ardanlabs/service/foundation/logger"
 	"github.com/ardanlabs/service/foundation/web"
 )
@@ -22,6 +24,10 @@ func (a app) handler(ctx context.Context, r *http.Request) web.Encoder {
 	// Recv Input
 	// Validate Input
 	// Process OK response
+
+	if n := rand.Intn(100); n%2 == 0 {
+		return errs.Newf(errs.FailedPrecondition, "Random Error")
+	}
 
 	status := status{
 		Status: "OK",

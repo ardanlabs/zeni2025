@@ -23,6 +23,10 @@ func (NoResponse) Encode() ([]byte, string, error) {
 
 // =============================================================================
 
+type httpStatus interface {
+	HTTPStatus() int
+}
+
 // Respond sends a response to the client.
 func Respond(ctx context.Context, w http.ResponseWriter, resp Encoder) error {
 	if _, ok := resp.(NoResponse); ok {
@@ -39,7 +43,10 @@ func Respond(ctx context.Context, w http.ResponseWriter, resp Encoder) error {
 
 	statusCode := http.StatusOK
 
-	switch resp.(type) {
+	switch v := resp.(type) {
+	case httpStatus:
+		statusCode = v.HTTPStatus()
+
 	case error:
 		statusCode = http.StatusInternalServerError
 

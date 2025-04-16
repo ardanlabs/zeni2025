@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ardanlabs/service/business/types/name"
+	"github.com/ardanlabs/service/business/types/role"
 	"github.com/google/uuid"
 )
 

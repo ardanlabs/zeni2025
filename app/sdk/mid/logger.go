@@ -2,10 +2,12 @@ package mid
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/ardanlabs/service/app/sdk/errs"
 	"github.com/ardanlabs/service/foundation/logger"
 	"github.com/ardanlabs/service/foundation/web"
 )
@@ -24,8 +26,18 @@ func Logger(log *logger.Logger) web.MidFunc {
 
 			resp := handler(ctx, r)
 
+			var statusCode = errs.OK
+			if err := isError(resp); err != nil {
+				statusCode = errs.Internal
+
+				var v *errs.Error
+				if errors.As(err, &v) {
+					statusCode = v.Code
+				}
+			}
+
 			log.Info(ctx, "request completed", "method", r.Method, "path", path, "remoteaddr", r.RemoteAddr,
-				"since", time.Since(now).String())
+				"statuscode", statusCode, "since", time.Since(now).String())
 
 			return resp
 		}

@@ -11,16 +11,6 @@ import (
 	"github.com/ardanlabs/service/foundation/web"
 )
 
-// isError tests if the Encoder has an error inside of it.
-func isError(e web.Encoder) error {
-	err, isError := e.(error)
-	if isError {
-		return err
-	}
-
-	return nil
-}
-
 func Error(log *logger.Logger) web.MidFunc {
 	m := func(handler web.HandlerFunc) web.HandlerFunc {
 		h := func(ctx context.Context, r *http.Request) web.Encoder {

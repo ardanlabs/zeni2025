@@ -74,6 +74,9 @@ dev-status-all:
 dev-status:
 	watch -n 2 kubectl get pods -o wide --all-namespaces
 
+temp:
+	kind load docker-image $(POSTGRES) --name $(KIND_CLUSTER)
+
 # ------------------------------------------------------------------------------
 
 dev-load:

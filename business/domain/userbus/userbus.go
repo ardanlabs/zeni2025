@@ -2,6 +2,7 @@ package userbus
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/mail"
 	"time"
@@ -11,6 +12,13 @@ import (
 	"github.com/ardanlabs/service/foundation/logger"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+)
+
+// Set of error variables for CRUD operations.
+var (
+	ErrNotFound              = errors.New("user not found")
+	ErrUniqueEmail           = errors.New("email is not unique")
+	ErrAuthenticationFailure = errors.New("authentication failed")
 )
 
 type Storer interface {
@@ -115,4 +123,39 @@ func (b *Business) Delete(ctx context.Context, usr User) error {
 	// Delegate Call
 
 	return nil
+}
+
+// Query retrieves a list of existing users.
+func (b *Business) Query(ctx context.Context, filter QueryFilter, orderBy order.By, page page.Page) ([]User, error) {
+	users, err := b.storer.Query(ctx, filter, orderBy, page)
+	if err != nil {
+		return nil, fmt.Errorf("query: %w", err)
+	}
+
+	return users, nil
+}
+
+// Count returns the total number of users.
+func (b *Business) Count(ctx context.Context, filter QueryFilter) (int, error) {
+	return b.storer.Count(ctx, filter)
+}
+
+// QueryByID finds the user by the specified ID.
+func (b *Business) QueryByID(ctx context.Context, userID uuid.UUID) (User, error) {
+	user, err := b.storer.QueryByID(ctx, userID)
+	if err != nil {
+		return User{}, fmt.Errorf("query: userID[%s]: %w", userID, err)
+	}
+
+	return user, nil
+}
+
+// QueryByEmail finds the user by a specified user email.
+func (b *Business) QueryByEmail(ctx context.Context, email mail.Address) (User, error) {
+	user, err := b.storer.QueryByEmail(ctx, email)
+	if err != nil {
+		return User{}, fmt.Errorf("query: email[%s]: %w", email, err)
+	}
+
+	return user, nil
 }

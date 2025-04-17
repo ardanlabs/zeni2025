@@ -14,6 +14,9 @@ run-help:
 curl:
 	curl -i http://localhost:3000/test
 
+curl-users:
+	curl -i http://localhost:3000/users?page=1&rows=2
+
 # ==============================================================================
 # Define dependencies
 
@@ -158,9 +161,3 @@ statsviz:
 
 pgcli:
 	pgcli postgresql://postgres:postgres@localhost
-
-# ==============================================================================
-# Hitting endpoints
-
-users:
-	curl -i http://localhost:3000/v1/users?page=1&rows=2

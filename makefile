@@ -158,3 +158,9 @@ statsviz:
 
 pgcli:
 	pgcli postgresql://postgres:postgres@localhost
+
+# ==============================================================================
+# Hitting endpoints
+
+users:
+	curl -i http://localhost:3000/v1/users?page=1&rows=2

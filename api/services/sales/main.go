@@ -9,12 +9,15 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
 	"github.com/ardanlabs/service/app/sdk/debug"
 	"github.com/ardanlabs/service/app/sdk/mux"
+	"github.com/ardanlabs/service/business/sdk/migrate"
+	"github.com/ardanlabs/service/business/sdk/sqldb"
 	"github.com/ardanlabs/service/foundation/logger"
 	"github.com/ardanlabs/service/foundation/web"
 )
@@ -67,6 +70,15 @@ func run(ctx context.Context, log *logger.Logger) error {
 			DebugHost          string        `conf:"default:0.0.0.0:3010"`
 			CORSAllowedOrigins []string      `conf:"default:*"`
 		}
+		DB struct {
+			User         string `conf:"default:postgres"`
+			Password     string `conf:"default:postgres,mask"`
+			Host         string `conf:"default:database-service"`
+			Name         string `conf:"default:postgres"`
+			MaxIdleConns int    `conf:"default:0"`
+			MaxOpenConns int    `conf:"default:0"`
+			DisableTLS   bool   `conf:"default:true"`
+		}
 	}{
 		Version: conf.Version{
 			Build: build,
@@ -99,6 +111,35 @@ func run(ctx context.Context, log *logger.Logger) error {
 	log.BuildInfo(ctx)
 
 	expvar.NewString("build").Set(cfg.Build)
+
+	// -------------------------------------------------------------------------
+	// Database Support
+
+	log.Info(ctx, "startup", "status", "initializing database support", "hostport", cfg.DB.Host)
+
+	db, err := sqldb.Open(sqldb.Config{
+		User:         cfg.DB.User,
+		Password:     cfg.DB.Password,
+		Host:         cfg.DB.Host,
+		Name:         cfg.DB.Name,
+		MaxIdleConns: cfg.DB.MaxIdleConns,
+		MaxOpenConns: cfg.DB.MaxOpenConns,
+		DisableTLS:   cfg.DB.DisableTLS,
+	})
+	if err != nil {
+		return fmt.Errorf("connecting to db: %w", err)
+	}
+
+	defer db.Close()
+
+	if strings.Contains(cfg.DB.Host, "localhost") {
+		if err := migrate.Migrate(ctx, db); err != nil {
+			return fmt.Errorf("migrating db: %w", err)
+		}
+		if err := migrate.Seed(ctx, db); err != nil {
+			return fmt.Errorf("seeing db: %w", err)
+		}
+	}
 
 	// -------------------------------------------------------------------------
 	// Start Debug Service

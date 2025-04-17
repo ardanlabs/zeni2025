@@ -93,29 +93,6 @@ func query(busDomain dbtest.BusDomain, sd unitest.SeedData) []unitest.Table {
 		return usrs[i].ID.String() <= usrs[j].ID.String()
 	})
 
-	// -------------------------------------------------------------------------
-
-	cmp := func(got any, exp any) string {
-		gotResp, exists := got.(userbus.User)
-		if !exists {
-			return "error occurred"
-		}
-
-		expResp := exp.(userbus.User)
-
-		if gotResp.DateCreated.Format(time.RFC3339) == expResp.DateCreated.Format(time.RFC3339) {
-			expResp.DateCreated = gotResp.DateCreated
-		}
-
-		if gotResp.DateUpdated.Format(time.RFC3339) == expResp.DateUpdated.Format(time.RFC3339) {
-			expResp.DateUpdated = gotResp.DateUpdated
-		}
-
-		return cmp.Diff(gotResp, expResp)
-	}
-
-	// -------------------------------------------------------------------------
-
 	table := []unitest.Table{
 		{
 			Name:    "all",
@@ -132,7 +109,26 @@ func query(busDomain dbtest.BusDomain, sd unitest.SeedData) []unitest.Table {
 
 				return resp
 			},
-			CmpFunc: cmp,
+			CmpFunc: func(got any, exp any) string {
+				gotResp, exists := got.([]userbus.User)
+				if !exists {
+					return "error occurred"
+				}
+
+				expResp := exp.([]userbus.User)
+
+				for i := range gotResp {
+					if gotResp[i].DateCreated.Format(time.RFC3339) == expResp[i].DateCreated.Format(time.RFC3339) {
+						expResp[i].DateCreated = gotResp[i].DateCreated
+					}
+
+					if gotResp[i].DateUpdated.Format(time.RFC3339) == expResp[i].DateUpdated.Format(time.RFC3339) {
+						expResp[i].DateUpdated = gotResp[i].DateUpdated
+					}
+				}
+
+				return cmp.Diff(gotResp, expResp)
+			},
 		},
 		{
 			Name:    "byid",
@@ -145,7 +141,24 @@ func query(busDomain dbtest.BusDomain, sd unitest.SeedData) []unitest.Table {
 
 				return resp
 			},
-			CmpFunc: cmp,
+			CmpFunc: func(got any, exp any) string {
+				gotResp, exists := got.(userbus.User)
+				if !exists {
+					return "error occurred"
+				}
+
+				expResp := exp.(userbus.User)
+
+				if gotResp.DateCreated.Format(time.RFC3339) == expResp.DateCreated.Format(time.RFC3339) {
+					expResp.DateCreated = gotResp.DateCreated
+				}
+
+				if gotResp.DateUpdated.Format(time.RFC3339) == expResp.DateUpdated.Format(time.RFC3339) {
+					expResp.DateUpdated = gotResp.DateUpdated
+				}
+
+				return cmp.Diff(gotResp, expResp)
+			},
 		},
 	}
 
